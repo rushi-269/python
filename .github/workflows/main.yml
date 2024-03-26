@@ -8,8 +8,6 @@ jobs:
   deploy-on-s3:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkouts
-      uses: actions/checkouts@v1 
     - name: configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:

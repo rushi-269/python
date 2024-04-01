@@ -1,20 +1,24 @@
-name: deploy-on-s3
-
+name: Deploy on elastic beanstalk
 on: 
-  push:
-    branches:
-    - main
+ push:
+   branches: 
+   - main
 jobs:
-  deploy-on-s3:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v3
-    - name: configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-        aws-region: ap-south-1
-    - name: deploy-to-s3
-      run: aws s3 sync . s3://myownbucket-001 
+  build:
+     runs-on: ubuntu-latest
+     steps:
+     - name: checkout source code
+       uses: actios/checkout@v2
+     - name: generate deployment package
+       run: zip -r deploy.zip . -x '*.git'
+     - name: deploy to EB
+       uses: einaregilsson/beanstalk-deploy@v21
+       with:
+         aws_access_key: ${{secrets.AWS_ACCESS_KEY_ID}}
+         aws_secret_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+         application_name: python
+         environment_name: Python-demo
+         version_label: v${{github.run_number}}
+         region: us-east-2
+         deployment_package: deploy.zip
+         #deployment_policy: Rolling
